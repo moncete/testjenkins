@@ -4,6 +4,7 @@ pipeline {
 
     parameters { 
         //choice(name: 'ENTORNO', choices: ['EPD', 'EPI1', 'EP2'], description: 'Entornos previos') 
+        extendedChoice(defaultValue: 'all', description: '', multiSelectDelimiter: ',', name: 'test', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_MULTI_SELECT', value: 'all,consul,telegraf,filebeat', visibleItemCount: 4)
         text(name: 'Maquina', defaultValue: 'Nombre_Maquina', description:'Maquina donde corre el Servicio' )
         string(name: 'Servicio', defaultValue: 'Nombre_servicio', description: 'Servicio a reiniciar')
         choice(name: 'Accion', choices: ['Stop','Start','Restart'], description: 'Accion a Ejecutar')
@@ -31,6 +32,72 @@ pipeline {
             }
         }
     }   
+}
+
+
+pipeline {
+
+    agent any
+
+    stages {
+        stage ("Clone ansible_devops") {
+            steps {
+                checkout(
+                    [$class: 'GitSCM', 
+                    branches: [[name: '*/master']], 
+                    doGenerateSubmoduleConfigurations: false, 
+                    extensions: [
+                        [$class: 'RelativeTargetDirectory', 
+                         relativeTargetDir: 'ansible-devops'], 
+                        [$class: 'CleanBeforeCheckout']], 
+                        submoduleCfg: [], 
+                        userRemoteConfigs: [
+                            [credentialsId: 'bitbu', url: 'https://aqdes-stash.cm.es/stash/scm/arqdvo/ansible-devops.git']
+                        ]
+                    ]
+                )
+            }
+        }
+
+        stage ("Clone Filebeat") {
+            steps {
+                checkout(
+                    [$class: 'GitSCM', 
+                    branches: [[name: '*/master']], 
+                    doGenerateSubmoduleConfigurations: false, 
+                    extensions: [
+                        [$class: 'RelativeTargetDirectory', 
+                         relativeTargetDir: 'filebeat'], 
+                        [$class: 'CleanBeforeCheckout']], 
+                        submoduleCfg: [], 
+                        userRemoteConfigs: [
+                            [credentialsId: 'bitbu', url: 'https://aqdes-stash.cm.es/stash/scm/arqdvo/trazas-aws-devops.git']
+                        ]
+                    ]
+                )
+            }
+        }
+        
+        stage ("Listado de ansible_devops") {
+            steps {
+                sh '''
+                    cd ansible-devops
+                    cat ansible.cfg
+                    ls -l ansible.cfg
+                ''' 
+            }
+        }
+
+        stage ("Listado de Filebeat") {
+            steps {
+                sh '''
+                    cd filebeat
+                    cat ansible.cfg
+                    ls -l ansible.cfg
+                '''
+            }
+        }
+    }
 }
 
 
