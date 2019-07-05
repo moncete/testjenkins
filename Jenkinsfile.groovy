@@ -53,7 +53,8 @@ pipeline {
                     becomeUser: 'SV00967', 
                     colorized: true, 
                     credentialsId: '343c97f1-a663-4d78-94ca-5ed66a5fb039', 
-                    disableHostKeyChecking: true, 
+                    disableHostKeyChecking: true,
+                    limit: "${params.host}",
                     extras: 'IMAGE_VERSION=1.10 ENTORNO=EPD SERVICE=telegraf action=start', 
                     inventory: "inventory/${params.ENTORNO}", 
                     playbook: 'pb-devops-infra.yml'
@@ -79,7 +80,8 @@ pipeline {
                     becomeUser: 'SV00967', 
                     colorized: true, 
                     credentialsId: '343c97f1-a663-4d78-94ca-5ed66a5fb039', 
-                    disableHostKeyChecking: true, 
+                    disableHostKeyChecking: true,
+                    limit: "${params.host}",
                     extras: 'IMAGE_VERSION=1.10 ENTORNO=EPD SERVICE=telegraf action=start', 
                     inventory: "inventory/filebeat/container/filebeat-${params.ENTORNO}", 
                     playbook: 'pb-devops-infra.yml'
