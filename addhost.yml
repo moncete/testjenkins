@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+
+
+  tasks:
+
+    - name: Check if exist hosts
+      shell: grep "{{ host }}" ./inventario
+      ignore_errors: yes
+      register: exist_host
+      tags : insert
+
+    - name: Insert new  Host
+      lineinfile:
+        dest: ./inventario
+        insertafter: '^\[{{ ENT }}_{{ TIPO }}\]$'
+        line:  "{{ host }} ip={{ IP }}"
+        firstmatch: yes
+        state: present
+      when: exist_host.stdout == ""
+      tags: insert
+
+    - name: Delete Host
+      lineinfile:
+        dest: ./inventario
+        regexp: '^{{ host }}'
+        state: absent
+      tags: delete
